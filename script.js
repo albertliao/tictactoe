@@ -71,12 +71,13 @@ function calculateOutcome(r,c) {
 
 }
 
-function TicTacController($scope)
-{
+function TicTacController($scope,$timeout) {
 	//console.log($scope);
 	$scope.rows = [["", "", ""], ["","",""], ["","",""]];  //clear board
 	$scope.outcome = "T3";
 	$scope.gameWinner = "";
+	$scope.AIOpponent = false;
+	$scope.pauseMouse = false;
 
 	$scope.showWinningCell = function(r,c) {
 		return (winMatrix[r][c] == 1 && $scope.gameWinner != "");
@@ -97,13 +98,54 @@ function TicTacController($scope)
 		gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
 		$scope.gameWinner = "";
 		movesTaken = 0;
-		$scope.footerStyle = { "display":"none" };
+		$scope.footerStyle = { "visibility":"hidden" };
+	}
+
+	$scope.pickAIMove = function() {
+		end_loop:
+		for(var i = 0; i<$scope.rows.length; i++) {
+			for(var j = 0; j<$scope.rows[i].length; j++) {
+				console.log("Inserting at:"+i+","+j);
+				console.log("Currently has:"+$scope.rows[i][j]);
+				if($scope.rows[i][j] == "") {
+					if(window.playerXTurn) {
+						$scope.rows[i][j] = 'X';
+						gameMatrix[i][j] = 1;
+						window.playerXTurn = !window.playerXTurn;
+						movesTaken++;
+						$scope.gameWinner = calculateOutcome(i,j);
+						break end_loop;
+					}
+					else {
+						$scope.rows[i][j] = 'O';
+						gameMatrix[i][j] = -1;
+						window.playerXTurn = !window.playerXTurn;
+						movesTaken++;
+						$scope.gameWinner = calculateOutcome(i,j);
+						break end_loop;
+					}
+				}
+
+			}
+		}
+		console.log("Winner Calculated:"+$scope.gameWinner);
+		if($scope.gameWinner != "") {
+			$scope.footerStyle = { "visibility":"visible" };
+			if($scope.gameWinner == "Tied")
+				$scope.outcome = "Draw!";
+			else
+				$scope.outcome = "Player "+$scope.gameWinner+" Wins!";
+		}
+		$scope.pauseMouse = false;
 	}
 
 	$scope.playerMoved = function(r,c) {
 		//console.log("makemove")
 		//console.log("row:"+r+" col:"+c );
 		
+		if($scope.pauseMouse) //pause for timeout to execute
+			return;
+
 		if ($scope.gameWinner == "" && $scope.rows[r][c] == "") {
 			if (window.playerXTurn) {
 				$scope.rows[r][c] = 'X';
@@ -122,15 +164,19 @@ function TicTacController($scope)
 			$scope.gameWinner = calculateOutcome(r,c);
 
 			if($scope.gameWinner != "") {
-				$scope.footerStyle = { "display":"block" }; //adjust style to block;
+				$scope.footerStyle = { "visibility":"visible" };
 				if($scope.gameWinner == "Tied")
 					$scope.outcome = "Draw!";
 				else
 					$scope.outcome = "Player "+$scope.gameWinner+" Wins!";
 			}
-				
+			else if ($scope.AIOpponent) { //AI moves if activated
+				//random free move
+				$scope.pauseMouse = true;
+				$timeout($scope.pickAIMove,1000);
+			}
+			
 		}
-		
 	};
 }
 

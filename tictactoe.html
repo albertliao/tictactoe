@@ -20,6 +20,16 @@
 		<div id="footer" x-ng-style="footerStyle">
 			<input type="button" value = "Play Again?" x-ng-click="resetBoard();"/>
 		</div>
+		<div class="switchContainer">
+			<span id="switchtext">Enable AI Opponent</span>
+			<div class="onoffswitch">
+				<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" x-ng-model="AIOpponent">
+				<label class="onoffswitch-label" for="myonoffswitch">
+	    			<div class="onoffswitch-inner"></div>
+	    			<div class="onoffswitch-switch"></div>
+				</label>
+			</div>
+		</div>
 </body>
 </html>
 
