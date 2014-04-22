@@ -1,5 +1,7 @@
 body {
 	background-color: CadetBlue;
+	background-image: url("Chalkboard.jpg");
+	background-size: cover;
 }
 
 .gameboard {
@@ -17,9 +19,39 @@ body {
 	background-color:DarkSlateGray; 
 	color:white; 
 	font-size:32pt; 
-	font-family: verdana, sans-serif;
+	font-family: 'Rock Salt', cursive;
 	text-align: center; 
 	line-height: 2.25em;
+}
+.cellblockNoHover {
+	float:left;
+	border:3px 
+	solid white; 
+	width:100px; 
+	height:100px; 
+	background-color:DarkSlateGray; 
+	color:white; 
+	font-size:32pt; 
+	font-family: 'Rock Salt', cursive;
+	text-align: center; 
+	line-height: 2.25em;
+}
+.cellblockFull {
+	float:left;
+	border:3px 
+	solid white; 
+	width:100px; 
+	height:100px; 
+	background-color:DarkSlateGray; 
+	color:white; 
+	font-size:32pt; 
+	font-family: 'Rock Salt', cursive;
+	text-align: center; 
+	line-height: 2.25em;
+}
+.cellblockWinning {
+	background-color: green;
+	text-decoration: blink;
 }
 .row {
 	clear:both;
@@ -34,7 +66,7 @@ body {
 .outcome h1 {
 	display: table-cell;
 	vertical-align: middle;
-	font-family: arial, sans-serif;
+	font-family: 'Rock Salt', cursive;
 	color: SteelBlue;
 	font-size: 56pt;
 	text-shadow: 2px 2px 5px black;
@@ -63,4 +95,104 @@ body {
   zoom: 1;
   filter: alpha(opacity=100);
   opacity: 1;
+}
+.gameboard .cellblockFull:hover{
+  box-shadow: 3px 3px 15px #666;
+  border-color: red;
+  background: red;
+  color: white;
+  cursor: default;
+  
+  /*Opacity*/
+  zoom: 1;
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+.gameboard .cellblockNoHover:hover{
+  box-shadow: none;
+  border-color: white;
+  background: DarkSlateGray;
+  color: white;
+  cursor: default;
+
+  /*Opacity*/
+  zoom: 1;
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+.gameboard .cellblockWinning:hover{
+  box-shadow: none;
+  border-color: white;
+  background: green;
+  color: white;
+  cursor: default;
+  text-decoration: blink;
+
+  /*Opacity*/
+  zoom: 1;
+  filter: alpha(opacity=100);
+  opacity: 1;
+}
+#footer {
+	text-align: center;
+	margin: 50px;
+	display: none;
+}
+#footer input {
+	-moz-box-shadow:inset 1px 1px 0px 0px #97c4fe;
+	-webkit-box-shadow:inset 1px 1px 0px 0px #97c4fe;
+	box-shadow:inset 1px 1px 0px 0px #97c4fe;
+	background-color:SteelBlue;
+	border:1px solid black;
+	display:inline-block;
+	color:white;
+	font-family:Arial;
+	font-size:20px;
+	font-weight:bold;
+	font-style:normal;
+	height:65px;
+	line-height:65px;
+	width:150px;
+	text-decoration:none;
+	text-align:center;
+	text-shadow:1px 1px 0px #1570cd;
+}#footer input:hover {
+	background-color:#1e62d0;
+}#footer input:active {
+	position:relative;
+	top:1px;
+}
+.blink_me {
+    -webkit-animation-name: blinker;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+
+    -moz-animation-name: blinker;
+    -moz-animation-duration: 1s;
+    -moz-animation-timing-function: linear;
+    -moz-animation-iteration-count: infinite;
+
+    animation-name: blinker;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+@-moz-keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+@-webkit-keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
+}
+
+@keyframes blinker {  
+    0% { opacity: 1.0; }
+    50% { opacity: 0.0; }
+    100% { opacity: 1.0; }
 }

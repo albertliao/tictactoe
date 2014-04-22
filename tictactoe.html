@@ -2,6 +2,7 @@
 <head>
 	<title>Ticy Tacy Toe!</title>
 	<link rel="stylesheet" href="style.css">
+	<link href='http://fonts.googleapis.com/css?family=Rock+Salt' rel='stylesheet' type='text/css'>
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
 	<script src="script.js"></script>
 </head>
@@ -11,10 +12,13 @@
 		</div>
 		<div class="gameboard">
 			<div class="row" x-ng-repeat="r in rows track by $index">
-				<div class="cellblock" x-ng-repeat="col in r track by $index" x-ng-click="playerMoved($parent.$index, $index)">
-				{{ col }}
+				<div class="cellblock" x-ng-repeat="col in r track by $index" x-ng-click="playerMoved($parent.$index, $index)" x-ng-class="{'cellblockNoHover': isGameOver(), 'cellblockFull' : isCellFull($parent.$index, $index), 'cellblockWinning': showWinningCell($parent.$index, $index) }">
+				<span x-ng-class="{'blink_me': showWinningCell($parent.$index, $index)}">{{ col }}</span>
 				</div>
 			</div>
+		</div>
+		<div id="footer" x-ng-style="footerStyle">
+			<input type="button" value = "Play Again?" x-ng-click="resetBoard();"/>
 		</div>
 </body>
 </html>
