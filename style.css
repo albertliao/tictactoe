@@ -68,7 +68,7 @@ body {
 	font-family: 'Rock Salt', cursive;
 	color: SteelBlue;
 	font-size: 56pt;
-	text-shadow: 2px 2px 5px black;
+	text-shadow: 6px 6px 5px black;
 }
 /*Fade all the DIV when user hovers on any div*/
 /*.gameboard:hover .cellblock{

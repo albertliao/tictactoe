@@ -1,0 +1,42 @@
+<html>
+<head>
+	<title>Ticy Tacy Toe!</title>
+	<link rel="stylesheet" href="style.css">
+	<link href='http://fonts.googleapis.com/css?family=Rock+Salt' rel='stylesheet' type='text/css'>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+	<script src="script.js"></script>
+</head>
+<body x-ng-app="" x-ng-controller="TicTacController">
+		<div class="outcome">
+			<h1>{{outcome}}</h1>
+		</div>
+		<div class="gameboard">
+			<div class="row" x-ng-repeat="r in rows track by $index">
+				<div class="cellblock" x-ng-repeat="col in r track by $index" x-ng-click="playerMoved($parent.$index, $index)" x-ng-class="{'cellblockNoHover': isGameOver(), 'cellblockFull' : isCellFull($parent.$index, $index), 'cellblockWinning': showWinningCell($parent.$index, $index) }">
+				<span x-ng-class="{'blink_me': showWinningCell($parent.$index, $index)}">{{ col }}</span>
+				</div>
+			</div>
+		</div>
+		<div id="footer" x-ng-style="footerStyle">
+			<input type="button" value = "Play Again?" x-ng-click="resetBoard();"/>
+		</div>
+		<div class="switchContainer">
+			<span id="switchtext">Enable AI Opponent</span>
+			<div class="onoffswitch">
+				<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" x-ng-model="AIOpponent">
+				<label class="onoffswitch-label" for="myonoffswitch">
+	    			<div class="onoffswitch-inner"></div>
+	    			<div class="onoffswitch-switch"></div>
+				</label>
+			</div>
+		</div>
+</body>
+</html>
+
+<!-- Console test code
+var myDiv = document.getElementsByTagName("div")[2]
+angular.element(myDiv).scope()
+
+//was in the body
+x-ng-init="rows = [['a','b','c'], ['d','e','f'], ['g','h','i']];"
+-->
