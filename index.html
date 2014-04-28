@@ -3,15 +3,20 @@
 	<title>Ticy Tacy Toe!</title>
 	<link rel="stylesheet" href="style.css">
 	<link href='http://fonts.googleapis.com/css?family=Rock+Salt' rel='stylesheet' type='text/css'>
-	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+	<!-- Firebase -->
+	<script src="https://cdn.firebase.com/js/client/1.0.11/firebase.js"></script>
+	<!-- AngularJS -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
+	<!-- AngularFire Library -->
+	<script src="https://cdn.firebase.com/libs/angularfire/0.7.1/angularfire.min.js"></script>
 	<script src="script.js"></script>
 </head>
-<body x-ng-app="" x-ng-controller="TicTacController">
+<body x-ng-app="TTTApp" x-ng-controller="TicTacController">
 		<div class="outcome">
 			<h1>{{outcome}}</h1>
 		</div>
 		<div class="gameboard">
-			<div class="row" x-ng-repeat="r in rows track by $index">
+			<div class="row" x-ng-repeat="r in game.rows track by $index">
 				<div class="cellblock" x-ng-repeat="col in r track by $index" x-ng-click="playerMoved($parent.$index, $index)" x-ng-class="{'cellblockNoHover': isGameOver(), 'cellblockFull' : isCellFull($parent.$index, $index), 'cellblockWinning': showWinningCell($parent.$index, $index) }">
 				<span x-ng-class="{'blink_me': showWinningCell($parent.$index, $index)}">{{ col }}</span>
 				</div>
@@ -20,6 +25,8 @@
 		<div id="footer" x-ng-style="footerStyle">
 			<input type="button" value = "Play Again?" x-ng-click="resetBoard();"/>
 		</div>
+		<input type="button" x-ng-click="playNetworkGame();" value="Network Game" />
+		<input type="button" x-ng-click="exitNetworkGame();" value="Leave Game" />
 		<div class="switchContainer">
 			<span id="switchtext">Enable AI Opponent</span>
 			<div class="onoffswitch">
@@ -32,11 +39,3 @@
 		</div>
 </body>
 </html>
-
-<!-- Console test code
-var myDiv = document.getElementsByTagName("div")[2]
-angular.element(myDiv).scope()
-
-//was in the body
-x-ng-init="rows = [['a','b','c'], ['d','e','f'], ['g','h','i']];"
--->

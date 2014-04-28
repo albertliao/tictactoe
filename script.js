@@ -1,115 +1,208 @@
-function calculateOutcome(r,c) {
-
-	//check row for win
-	var scoreArray = [];
-	var matrixScore = 0;
-	winMatrix = [[0,0,0],[0,0,0],[0,0,0]];
-	for (var i=0; i<3; i++) {
-		matrixScore += gameMatrix[r][i];
-		winMatrix[r][i] = 1;
-	}
-	//console.log("row score:"+matrixScore);
-
-	if (matrixScore == 3) {
-		return "X";
-	}
-	else if (matrixScore == -3) {
-		return "O";
-	}
-
-	//checking col for win
-	matrixScore = 0;
-	winMatrix = [[0,0,0],[0,0,0],[0,0,0]];
-	for (var i=0; i<3; i++) {
-		matrixScore += gameMatrix[i][c];
-		winMatrix[i][c] = 1;
-	}
-	//console.log("col score:"+matrixScore);
-
-	if (matrixScore == 3) {
-		return "X";
-	}
-	else if (matrixScore == -3) {
-		return "O";
-	}
-
-	//check for diagonals TL
-	matrixScore = 0;
-	matrixScore = gameMatrix[0][0]+gameMatrix[1][1]+gameMatrix[2][2];
-	winMatrix = [[1,0,0],[0,1,0],[0,0,1]];
-	//console.log("diagTL score:"+matrixScore);
-
-	if (matrixScore == 3) {
-		return "X";
-	}
-	else if (matrixScore == -3) {
-		return "O";
-	}
-
-	//check for diagonals BL
-	matrixScore = 0;
-	matrixScore = gameMatrix[2][0]+gameMatrix[1][1]+gameMatrix[0][2];
-	winMatrix = [[0,0,1],[0,1,0],[1,0,0]];
-	//console.log("diagBL score:"+matrixScore);
-
-	if (matrixScore == 3) {
-		return "X";
-	}
-	else if (matrixScore == -3) {
-		return "O";
-	}
-
-
-	//check for tie
-	winMatrix = [[0,0,0],[0,0,0],[0,0,0]];
-	if (movesTaken == MAX_TURNS) {
-		//console.log("Game Over: Tied");
-		return "Tied";
-	}
-	else {
-		return ""; //continue game
-	}
-
-}
-
-function TicTacController($scope,$timeout) {
+angular.module("TTTApp", ["firebase"]).
+	controller("TicTacController", function($scope,$timeout,$firebase) {
 	//console.log($scope);
-	$scope.rows = [["", "", ""], ["","",""], ["","",""]];  //clear board
 	$scope.outcome = "T3";
-	$scope.gameWinner = "";
+	//$scope.gameWinner = "";
 	$scope.AIOpponent = false;
 	$scope.pauseMouse = false;
+	$scope.game = { 
+		"rows": [["", "", ""], ["","",""], ["","",""]], 
+		"movesTaken":0, 
+		"gameComplete":false, 
+		"gameWinner":"",
+		"winMatrix":[[0,0,0],[0,0,0],[0,0,0]]
+	};  //clear board
+	var blankBoard = [["", "", ""], ["","",""], ["","",""]];  //clear board
+	var firebaseURL = "https://ticytacy.firebaseio.com/games"
+	var ticTacRef = new Firebase(firebaseURL);
+	var networkPlayer = null;
+	var lastGame;
+	var networkGame = false;
+
+	$scope.calculateOutcome = function(r,c) {
+
+		//check row for win
+		var scoreArray = [];
+		var matrixScore = 0;
+		$scope.game.winMatrix = [[0,0,0],[0,0,0],[0,0,0]];
+		for (var i=0; i<3; i++) {
+			matrixScore += gameMatrix[r][i];
+			$scope.game.winMatrix[r][i] = 1;
+		}
+		if(networkGame)
+			$scope.game.$save();
+		//console.log("row score:"+matrixScore);
+
+		if (matrixScore == 3) {
+			return "X";
+		}
+		else if (matrixScore == -3) {
+			return "O";
+		}
+
+		//checking col for win
+		matrixScore = 0;
+		$scope.game.winMatrix = [[0,0,0],[0,0,0],[0,0,0]];
+		for (var i=0; i<3; i++) {
+			matrixScore += gameMatrix[i][c];
+			$scope.game.winMatrix[i][c] = 1;
+		}
+		if(networkGame)
+			$scope.game.$save();
+		//console.log("col score:"+matrixScore);
+
+		if (matrixScore == 3) {
+			return "X";
+		}
+		else if (matrixScore == -3) {
+			return "O";
+		}
+
+		//check for diagonals TL
+		matrixScore = 0;
+		matrixScore = gameMatrix[0][0]+gameMatrix[1][1]+gameMatrix[2][2];
+		$scope.game.winMatrix = [[1,0,0],[0,1,0],[0,0,1]];
+		//console.log("diagTL score:"+matrixScore);
+		if(networkGame)
+			$scope.game.$save();
+
+		if (matrixScore == 3) {
+			return "X";
+		}
+		else if (matrixScore == -3) {
+			return "O";
+		}
+
+		//check for diagonals BL
+		matrixScore = 0;
+		matrixScore = gameMatrix[2][0]+gameMatrix[1][1]+gameMatrix[0][2];
+		$scope.game.winMatrix = [[0,0,1],[0,1,0],[1,0,0]];
+		//console.log("diagBL score:"+matrixScore);
+		if(networkGame)
+			$scope.game.$save();
+
+		if (matrixScore == 3) {
+			return "X";
+		}
+		else if (matrixScore == -3) {
+			return "O";
+		}
+
+
+		//check for tie
+		$scope.game.winMatrix = [[0,0,0],[0,0,0],[0,0,0]];
+		if(networkGame)
+			$scope.game.$save();
+		if ($scope.game.movesTaken == MAX_TURNS) {
+			//console.log("Game Over: Tied");
+			return "Tied";
+		}
+		else {
+			return ""; //continue game
+		}
+
+	}
+
+	$scope.resetBoard = function() {
+		$scope.game.rows = [["", "", ""], ["","",""], ["","",""]];
+		$scope.outcome = "T3"
+		gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
+		$scope.game.gameWinner = "";
+		$scope.game.movesTaken = 0;
+		$scope.footerStyle = { "visibility":"hidden" };
+		playerXTurn = true; //Player X always starts
+	};
+
+	$scope.exitNetworkGame = function() {
+		$scope.game = { "rows": [["", "", ""], ["","",""], ["","",""]] };
+		$scope.resetBoard();
+		networkGame = false;
+	}
+
+	$scope.playNetworkGame = function() {
+
+		networkGame = true;
+		// Ask for info from firebase
+		ticTacRef.once('value', function(gamesSnapshot) {
+			// get the actual games data
+		  	var games = gamesSnapshot.val();
+			if(games == null)
+			{
+				// No games at all, so make a new game -- As if we're Areg
+				lastGame = ticTacRef.push( { scoreX: 0, scoreO: 0, waiting:true, movesTaken: 0, gameComplete: 
+			  		false, rows: blankBoard, gameWinner: "", "winMatrix":[[0,0,0],[0,0,0],[0,0,0]] } );
+				$scope.networkPlayer = 1;
+				$scope.outcome = "Waiting for Opponent...";
+				$scope.game.$save;
+			}
+			else	// I do have at least one game out there...
+			{
+				var keys = Object.keys(games);
+			  	var lastGameKey = keys[ keys.length - 1 ];
+			  	var lastGame = games[ lastGameKey ];
+			  	console.log("LastGame", lastGame);
+				console.log("LastGameKey",lastGameKey);
+				console.log("games",games);
+			  	if(lastGame.waiting)
+			  	{
+			  		// Currently someone is waiting -- Areg is there and we're Rocky
+			  		// Grab from Firebase its last game object
+			  		lastGame = ticTacRef.child(lastGameKey);
+			  		console.log("LastGameWaiting", lastGame);
+			  		// Set a new game on this
+			  		lastGame.update( { waiting:false } );
+			  		$scope.networkPlayer = 2;
+			  	}
+			  	else
+			  	{
+			  		// Make a new game -- As if we're Areg
+					lastGame = ticTacRef.push( { scoreX: 0, scoreO: 0, waiting:true, movesTaken: 0, gameComplete: 
+			  		false, rows: blankBoard, gameWinner: "", "winMatrix":[[0,0,0],[0,0,0],[0,0,0]] } );
+					$scope.networkPlayer = 1;
+					$scope.outcome = "Waiting for Opponent...";
+				}
+			}
+			// Show the actual last game!
+			console.log("Connecting to Firebase");
+		  	$scope.game = $firebase(lastGame);
+
+		  	$scope.game.$on("change", function() {
+				if($scope.game.waiting == false)
+				$scope.outcome = "Connected!";
+
+				if($scope.game.gameComplete) {
+					$scope.footerStyle = { "visibility":"visible" };
+					if($scope.game.gameWinner == "Tied")
+						$scope.outcome = "Draw!";
+					else
+						$scope.outcome = "Player "+$scope.game.gameWinner+" Wins!";
+				}
+			});
+
+		});
+
+	};
 
 	$scope.showWinningCell = function(r,c) {
-		return (winMatrix[r][c] == 1 && $scope.gameWinner != "");
+		return ($scope.game.winMatrix[r][c] == 1 && $scope.game.gameWinner != "");
 	};
 
 	$scope.isCellFull = function(r,c) {
-		return ($scope.rows[r][c] != "" && !$scope.isGameOver() );
+		return ($scope.game.rows[r][c] != "" && !$scope.isGameOver() );
 	};
 
 	$scope.isGameOver = function() {
-		//console.log("Game Over:"+$scope.gameWinner);
-		return ($scope.gameWinner != "");
-	};
-
-	$scope.resetBoard = function() {
-		$scope.rows = [["", "", ""], ["","",""], ["","",""]];
-		$scope.outcome = "T3"
-		gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
-		$scope.gameWinner = "";
-		movesTaken = 0;
-		$scope.footerStyle = { "visibility":"hidden" };
-		playerXTurn = true; //Player X always starts
+		//console.log("Game Over:"+$scope.game.gameWinner);
+		return ($scope.game.gameWinner != "");
 	};
 
 	$scope.chooseFirstCell = function() {
 		
 		var chosenCell = [0,0] 
 
-		for(var i = 0; i<$scope.rows.length; i++) {
-			for(var j = 0; j<$scope.rows[i].length; j++) {
-				if($scope.rows[i][j] == "") {
+		for(var i = 0; i<$scope.game.rows.length; i++) {
+			for(var j = 0; j<$scope.game.rows[i].length; j++) {
+				if($scope.game.rows[i][j] == "") {
 						chosenCell[0] = i;
 						chosenCell[1] = j;
 						return chosenCell;
@@ -275,26 +368,26 @@ function TicTacController($scope,$timeout) {
 		var j = AImove[1];
 		
 		if(window.playerXTurn) {
-			$scope.rows[i][j] = 'X';
+			$scope.game.rows[i][j] = 'X';
 			gameMatrix[i][j] = 1;
 			window.playerXTurn = !window.playerXTurn;
-			movesTaken++;
-			$scope.gameWinner = calculateOutcome(i,j);
+			$scope.game.movesTaken++;
+			$scope.game.gameWinner = $scope.calculateOutcome(i,j);
 		}
 		else {
-			$scope.rows[i][j] = 'O';
+			$scope.game.rows[i][j] = 'O';
 			gameMatrix[i][j] = -1;
 			window.playerXTurn = !window.playerXTurn;
-			movesTaken++;
-			$scope.gameWinner = calculateOutcome(i,j);
+			$scope.game.movesTaken++;
+			$scope.game.gameWinner = $scope.calculateOutcome(i,j);
 		}
 
-		if($scope.gameWinner != "") {
+		if($scope.game.gameWinner != "") {
 			$scope.footerStyle = { "visibility":"visible" };
-			if($scope.gameWinner == "Tied")
+			if($scope.game.gameWinner == "Tied")
 				$scope.outcome = "Draw!";
 			else
-				$scope.outcome = "Player "+$scope.gameWinner+" Wins!";
+				$scope.outcome = "Player "+$scope.game.gameWinner+" Wins!";
 		}
 		//$scope.pauseMouse = false;
 	};
@@ -303,32 +396,47 @@ function TicTacController($scope,$timeout) {
 		//console.log("makemove")
 		//console.log("row:"+r+" col:"+c );
 		
-		// if($scope.pauseMouse) //pause for timeout to execute
+		//if($scope.pauseMouse) //pause for timeout to execute
 		// 	return;
+		if(networkGame) {
+			console.log("Player",$scope.networkPlayer);
+			if(($scope.game.movesTaken % 2 != 0 && $scope.networkPlayer == 1) || ($scope.game.movesTaken % 2 == 0 && $scope.networkPlayer == 2)) //don't let wrong player move
+				return;
+		}
+					
 
-		if ($scope.gameWinner == "" && $scope.rows[r][c] == "") {
-			if (window.playerXTurn) {
-				$scope.rows[r][c] = 'X';
+		if ($scope.game.gameWinner == "" && $scope.game.rows[r][c] == "") {
+			if ((!networkGame && window.playerXTurn) || (networkGame && $scope.game.movesTaken % 2 == 0)) {
+				$scope.game.rows[r][c] = 'X';
 				gameMatrix[r][c] = 1;
 				window.playerXTurn = !window.playerXTurn;
-				movesTaken++;	
+				$scope.game.movesTaken++;	
 			}
 			else {
-				$scope.rows[r][c] = 'O';
+				$scope.game.rows[r][c] = 'O';
 				gameMatrix[r][c] = -1;
 				window.playerXTurn = !window.playerXTurn;
-				movesTaken++;
+				$scope.game.movesTaken++;
 			}
+			
+			if(networkGame)
+				$scope.game.$save();
 
 			//returns game outcome or "" if not done
-			$scope.gameWinner = calculateOutcome(r,c);
+			$scope.game.gameWinner = $scope.calculateOutcome(r,c);
 
-			if($scope.gameWinner != "") {
-				$scope.footerStyle = { "visibility":"visible" };
-				if($scope.gameWinner == "Tied")
-					$scope.outcome = "Draw!";
-				else
-					$scope.outcome = "Player "+$scope.gameWinner+" Wins!";
+			if($scope.game.gameWinner != "") {
+				$scope.game.gameComplete = true;
+				if(networkGame)
+					$scope.game.$save();
+				else { 
+					//display win for local game, network game is displayed in $on function 
+					$scope.footerStyle = { "visibility":"visible" };
+					if($scope.game.gameWinner == "Tied")
+						$scope.outcome = "Draw!";
+					else
+						$scope.outcome = "Player "+$scope.game.gameWinner+" Wins!";
+				}
 			}
 			else if ($scope.AIOpponent) { //AI moves if activated
 				//random free move
@@ -339,7 +447,7 @@ function TicTacController($scope,$timeout) {
 			
 		}
 	};
-}
+});
 
 
 
@@ -347,8 +455,8 @@ window.onload = function() {
 	//console.log("script start");
 }
 
-var winMatrix = [[0,0,0],[0,0,0],[0,0,0]]; //for highlighting the win cells
+//var winMatrix = [[0,0,0],[0,0,0],[0,0,0]]; //for highlighting the win cells
 var gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
 var playerXTurn = true;
 var MAX_TURNS = 9;
-var movesTaken = 0;
+//var movesTaken = 0;
