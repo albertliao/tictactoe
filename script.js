@@ -10,7 +10,8 @@ angular.module("TTTApp", ["firebase"]).
 		"movesTaken":0, 
 		"gameComplete":false, 
 		"gameWinner":"",
-		"winMatrix":[[0,0,0],[0,0,0],[0,0,0]]
+		"winMatrix":[[0,0,0],[0,0,0],[0,0,0]],
+		"gameMatrix":[[0,0,0],[0,0,0],[0,0,0]]
 	};  //clear board
 	var blankBoard = [["", "", ""], ["","",""], ["","",""]];  //clear board
 	var firebaseURL = "https://ticytacy.firebaseio.com/games"
@@ -26,7 +27,7 @@ angular.module("TTTApp", ["firebase"]).
 		var matrixScore = 0;
 		$scope.game.winMatrix = [[0,0,0],[0,0,0],[0,0,0]];
 		for (var i=0; i<3; i++) {
-			matrixScore += gameMatrix[r][i];
+			matrixScore += $scope.game.gameMatrix[r][i];
 			$scope.game.winMatrix[r][i] = 1;
 		}
 		if(networkGame)
@@ -44,7 +45,7 @@ angular.module("TTTApp", ["firebase"]).
 		matrixScore = 0;
 		$scope.game.winMatrix = [[0,0,0],[0,0,0],[0,0,0]];
 		for (var i=0; i<3; i++) {
-			matrixScore += gameMatrix[i][c];
+			matrixScore += $scope.game.gameMatrix[i][c];
 			$scope.game.winMatrix[i][c] = 1;
 		}
 		if(networkGame)
@@ -60,7 +61,7 @@ angular.module("TTTApp", ["firebase"]).
 
 		//check for diagonals TL
 		matrixScore = 0;
-		matrixScore = gameMatrix[0][0]+gameMatrix[1][1]+gameMatrix[2][2];
+		matrixScore = $scope.game.gameMatrix[0][0]+$scope.game.gameMatrix[1][1]+$scope.game.gameMatrix[2][2];
 		$scope.game.winMatrix = [[1,0,0],[0,1,0],[0,0,1]];
 		//console.log("diagTL score:"+matrixScore);
 		if(networkGame)
@@ -75,7 +76,7 @@ angular.module("TTTApp", ["firebase"]).
 
 		//check for diagonals BL
 		matrixScore = 0;
-		matrixScore = gameMatrix[2][0]+gameMatrix[1][1]+gameMatrix[0][2];
+		matrixScore = $scope.game.gameMatrix[2][0]+$scope.game.gameMatrix[1][1]+$scope.game.gameMatrix[0][2];
 		$scope.game.winMatrix = [[0,0,1],[0,1,0],[1,0,0]];
 		//console.log("diagBL score:"+matrixScore);
 		if(networkGame)
@@ -106,11 +107,13 @@ angular.module("TTTApp", ["firebase"]).
 	$scope.resetBoard = function() {
 		$scope.game.rows = [["", "", ""], ["","",""], ["","",""]];
 		$scope.outcome = "T3"
-		gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
+		$scope.game.gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
 		$scope.game.gameWinner = "";
 		$scope.game.movesTaken = 0;
 		$scope.footerStyle = { "visibility":"hidden" };
 		playerXTurn = true; //Player X always starts
+		$scope.game.gameComplete = false;
+		$scope.game.$save();
 	};
 
 	$scope.exitNetworkGame = function() {
@@ -130,7 +133,7 @@ angular.module("TTTApp", ["firebase"]).
 			{
 				// No games at all, so make a new game -- As if we're Areg
 				lastGame = ticTacRef.push( { scoreX: 0, scoreO: 0, waiting:true, movesTaken: 0, gameComplete: 
-			  		false, rows: blankBoard, gameWinner: "", "winMatrix":[[0,0,0],[0,0,0],[0,0,0]] } );
+			  		false, rows: blankBoard, gameWinner: "", "winMatrix":[[0,0,0],[0,0,0],[0,0,0]], "gameMatrix":[[0,0,0],[0,0,0],[0,0,0]] } );
 				$scope.networkPlayer = 1;
 				$scope.outcome = "Waiting for Opponent...";
 				$scope.game.$save;
@@ -157,7 +160,7 @@ angular.module("TTTApp", ["firebase"]).
 			  	{
 			  		// Make a new game -- As if we're Areg
 					lastGame = ticTacRef.push( { scoreX: 0, scoreO: 0, waiting:true, movesTaken: 0, gameComplete: 
-			  		false, rows: blankBoard, gameWinner: "", "winMatrix":[[0,0,0],[0,0,0],[0,0,0]] } );
+			  		false, rows: blankBoard, gameWinner: "", "winMatrix":[[0,0,0],[0,0,0],[0,0,0]], "gameMatrix":[[0,0,0],[0,0,0],[0,0,0]] } );
 					$scope.networkPlayer = 1;
 					$scope.outcome = "Waiting for Opponent...";
 				}
@@ -167,8 +170,15 @@ angular.module("TTTApp", ["firebase"]).
 		  	$scope.game = $firebase(lastGame);
 
 		  	$scope.game.$on("change", function() {
-				if($scope.game.waiting == false)
-				$scope.outcome = "Connected!";
+				if($scope.game.waiting == false) {
+					if($scope.game.movesTaken % 2 == 0 && $scope.networkPlayer == 1)
+						$scope.outcome = "Your Move";
+					else if ($scope.game.movesTaken % 2 != 0 && $scope.networkPlayer == 2)
+						$scope.outcome = "Your Move";
+					else
+						$scope.outcome = "Their Move"
+				}
+
 
 				if($scope.game.gameComplete) {
 					$scope.footerStyle = { "visibility":"visible" };
@@ -177,6 +187,8 @@ angular.module("TTTApp", ["firebase"]).
 					else
 						$scope.outcome = "Player "+$scope.game.gameWinner+" Wins!";
 				}
+				else
+					$scope.footerStyle = { "visibility":"hidden" };
 			});
 
 		});
@@ -327,7 +339,7 @@ angular.module("TTTApp", ["firebase"]).
 	$scope.chooseMiniMax = function() {
 		var best = -1000;
 		var choices = [];
-		var testMatrix = window.gameMatrix.slice(0); //copy array
+		var testMatrix = $scope.game.gameMatrix.slice(0); //copy array
 		var val;
 		var player = -1; //computer is always O
 
@@ -355,7 +367,7 @@ angular.module("TTTApp", ["firebase"]).
 	};
 
 	$scope.chooseRandom = function() {
-		var choices = $scope.freeCells(gameMatrix);
+		var choices = $scope.freeCells($scope.game.gameMatrix);
 		return choices[Math.floor(Math.random()*choices.length)];
 	}
 
@@ -369,14 +381,14 @@ angular.module("TTTApp", ["firebase"]).
 		
 		if(window.playerXTurn) {
 			$scope.game.rows[i][j] = 'X';
-			gameMatrix[i][j] = 1;
+			$scope.game.gameMatrix[i][j] = 1;
 			window.playerXTurn = !window.playerXTurn;
 			$scope.game.movesTaken++;
 			$scope.game.gameWinner = $scope.calculateOutcome(i,j);
 		}
 		else {
 			$scope.game.rows[i][j] = 'O';
-			gameMatrix[i][j] = -1;
+			$scope.game.gameMatrix[i][j] = -1;
 			window.playerXTurn = !window.playerXTurn;
 			$scope.game.movesTaken++;
 			$scope.game.gameWinner = $scope.calculateOutcome(i,j);
@@ -408,13 +420,13 @@ angular.module("TTTApp", ["firebase"]).
 		if ($scope.game.gameWinner == "" && $scope.game.rows[r][c] == "") {
 			if ((!networkGame && window.playerXTurn) || (networkGame && $scope.game.movesTaken % 2 == 0)) {
 				$scope.game.rows[r][c] = 'X';
-				gameMatrix[r][c] = 1;
+				$scope.game.gameMatrix[r][c] = 1;
 				window.playerXTurn = !window.playerXTurn;
 				$scope.game.movesTaken++;	
 			}
 			else {
 				$scope.game.rows[r][c] = 'O';
-				gameMatrix[r][c] = -1;
+				$scope.game.gameMatrix[r][c] = -1;
 				window.playerXTurn = !window.playerXTurn;
 				$scope.game.movesTaken++;
 			}
@@ -456,7 +468,7 @@ window.onload = function() {
 }
 
 //var winMatrix = [[0,0,0],[0,0,0],[0,0,0]]; //for highlighting the win cells
-var gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
+// var gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
 var playerXTurn = true;
 var MAX_TURNS = 9;
 //var movesTaken = 0;
