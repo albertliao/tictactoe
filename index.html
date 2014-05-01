@@ -25,8 +25,9 @@
 		<div id="footer" x-ng-style="footerStyle">
 			<input type="button" value = "Play Again?" x-ng-click="resetBoard();"/>
 		</div>
+		<p>Score X:{{game.scoreX}} Score O:{{game.scoreO}}</p>
 		<input type="button" x-ng-click="playNetworkGame();" value="Network Game" />
-		<input type="button" x-ng-click="exitNetworkGame();" value="Leave Game" />
+		<input type="button" x-ng-click="exitNetworkGame();" value="Disconnect" />
 		<div class="switchContainer">
 			<span id="switchtext">Enable AI Opponent</span>
 			<div class="onoffswitch">

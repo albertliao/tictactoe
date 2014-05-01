@@ -11,7 +11,9 @@ angular.module("TTTApp", ["firebase"]).
 		"gameComplete":false, 
 		"gameWinner":"",
 		"winMatrix":[[0,0,0],[0,0,0],[0,0,0]],
-		"gameMatrix":[[0,0,0],[0,0,0],[0,0,0]]
+		"gameMatrix":[[0,0,0],[0,0,0],[0,0,0]],
+		"scoreX":0,
+		"scoreO":0
 	};  //clear board
 	var blankBoard = [["", "", ""], ["","",""], ["","",""]];  //clear board
 	var firebaseURL = "https://ticytacy.firebaseio.com/games"
@@ -35,9 +37,11 @@ angular.module("TTTApp", ["firebase"]).
 		//console.log("row score:"+matrixScore);
 
 		if (matrixScore == 3) {
+			$scope.game.scoreX++;
 			return "X";
 		}
 		else if (matrixScore == -3) {
+			$scope.game.scoreO++;
 			return "O";
 		}
 
@@ -53,9 +57,11 @@ angular.module("TTTApp", ["firebase"]).
 		//console.log("col score:"+matrixScore);
 
 		if (matrixScore == 3) {
+			$scope.game.scoreX++;
 			return "X";
 		}
 		else if (matrixScore == -3) {
+			$scope.game.scoreO++;
 			return "O";
 		}
 
@@ -68,9 +74,11 @@ angular.module("TTTApp", ["firebase"]).
 			$scope.game.$save();
 
 		if (matrixScore == 3) {
+			$scope.game.scoreX++;
 			return "X";
 		}
 		else if (matrixScore == -3) {
+			$scope.game.scoreO++;
 			return "O";
 		}
 
@@ -83,9 +91,11 @@ angular.module("TTTApp", ["firebase"]).
 			$scope.game.$save();
 
 		if (matrixScore == 3) {
+			$scope.game.scoreX++;
 			return "X";
 		}
 		else if (matrixScore == -3) {
+			$scope.game.scoreO++;
 			return "O";
 		}
 
@@ -113,13 +123,25 @@ angular.module("TTTApp", ["firebase"]).
 		$scope.footerStyle = { "visibility":"hidden" };
 		playerXTurn = true; //Player X always starts
 		$scope.game.gameComplete = false;
-		$scope.game.$save();
+		if(networkGame) { //alternate player turn
+			$scope.game.$save();
+		}
 	};
 
 	$scope.exitNetworkGame = function() {
-		$scope.game = { "rows": [["", "", ""], ["","",""], ["","",""]] };
-		$scope.resetBoard();
 		networkGame = false;
+		$scope.game = { 
+			"rows": [["", "", ""], ["","",""], ["","",""]], 
+			"movesTaken":0, 
+			"gameComplete":false, 
+			"gameWinner":"",
+			"winMatrix":[[0,0,0],[0,0,0],[0,0,0]],
+			"gameMatrix":[[0,0,0],[0,0,0],[0,0,0]],
+			"scoreX":0,
+			"scoreO":0
+		};  //clear board
+		$scope.footerStyle = { "visibility":"hidden" };
+		playerXTurn = true; //Player X always starts
 	}
 
 	$scope.playNetworkGame = function() {
@@ -135,7 +157,7 @@ angular.module("TTTApp", ["firebase"]).
 				lastGame = ticTacRef.push( { scoreX: 0, scoreO: 0, waiting:true, movesTaken: 0, gameComplete: 
 			  		false, rows: blankBoard, gameWinner: "", "winMatrix":[[0,0,0],[0,0,0],[0,0,0]], "gameMatrix":[[0,0,0],[0,0,0],[0,0,0]] } );
 				$scope.networkPlayer = 1;
-				$scope.outcome = "Waiting for Opponent...";
+				$scope.outcome = "Connecting...";
 				$scope.game.$save;
 			}
 			else	// I do have at least one game out there...
@@ -162,7 +184,7 @@ angular.module("TTTApp", ["firebase"]).
 					lastGame = ticTacRef.push( { scoreX: 0, scoreO: 0, waiting:true, movesTaken: 0, gameComplete: 
 			  		false, rows: blankBoard, gameWinner: "", "winMatrix":[[0,0,0],[0,0,0],[0,0,0]], "gameMatrix":[[0,0,0],[0,0,0],[0,0,0]] } );
 					$scope.networkPlayer = 1;
-					$scope.outcome = "Waiting for Opponent...";
+					$scope.outcome = "Connecting...";
 				}
 			}
 			// Show the actual last game!
@@ -172,11 +194,11 @@ angular.module("TTTApp", ["firebase"]).
 		  	$scope.game.$on("change", function() {
 				if($scope.game.waiting == false) {
 					if($scope.game.movesTaken % 2 == 0 && $scope.networkPlayer == 1)
-						$scope.outcome = "Your Move";
+						$scope.outcome = "Make Move";
 					else if ($scope.game.movesTaken % 2 != 0 && $scope.networkPlayer == 2)
-						$scope.outcome = "Your Move";
+						$scope.outcome = "Make Move";
 					else
-						$scope.outcome = "Their Move"
+						$scope.outcome = "Waiting..."
 				}
 
 
@@ -184,8 +206,16 @@ angular.module("TTTApp", ["firebase"]).
 					$scope.footerStyle = { "visibility":"visible" };
 					if($scope.game.gameWinner == "Tied")
 						$scope.outcome = "Draw!";
+					else {
+						if($scope.game.gameWinner == "X" && $scope.networkPlayer == 1 || $scope.game.gameWinner == "O" && $scope.networkPlayer == 2)
+							$scope.outcome = "You Win!";
+						else
+							$scope.outcome = "You Lose!";
+					} //alternate starting player for network games
+					if($scope.networkPlayer == 1)
+						$scope.networkPlayer = 2;
 					else
-						$scope.outcome = "Player "+$scope.game.gameWinner+" Wins!";
+						$scope.networkPlayer = 1;
 				}
 				else
 					$scope.footerStyle = { "visibility":"hidden" };
@@ -439,6 +469,8 @@ angular.module("TTTApp", ["firebase"]).
 
 			if($scope.game.gameWinner != "") {
 				$scope.game.gameComplete = true;
+				console.log("ScoreX",$scope.game.scoreX);
+				console.log("ScoreO",$scope.game.scoreO);
 				if(networkGame)
 					$scope.game.$save();
 				else { 
