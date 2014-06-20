@@ -2,7 +2,8 @@
 <head>
 	<title>Ticy Tacy Toe!</title>
 	<link rel="stylesheet" href="style.css">
-	<link href='http://fonts.googleapis.com/css?family=Rock+Salt' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Exo+2' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=VT323' rel='stylesheet' type='text/css'>
 	<!-- Firebase -->
 	<script src="https://cdn.firebase.com/js/client/1.0.11/firebase.js"></script>
 	<!-- AngularJS -->
@@ -22,10 +23,13 @@
 				</div>
 			</div>
 		</div>
+		<div class="scoreboard">
+			<h1>Win Record</h1>
+			<h2>X|{{game.scoreX}}-------------O|{{game.scoreO}}</h2>
+		</div>
 		<div id="footer" x-ng-style="footerStyle">
 			<input type="button" value = "Play Again?" x-ng-click="resetBoard();"/>
 		</div>
-		<p>Score X:{{game.scoreX}} Score O:{{game.scoreO}}</p>
 		<input type="button" x-ng-click="playNetworkGame();" value="Network Game" />
 		<input type="button" x-ng-click="exitNetworkGame();" value="Disconnect" />
 		<div class="switchContainer">
