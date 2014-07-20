@@ -1,0 +1,19 @@
+== T3
+
+Tic Tac Toe game written in Javascript, HTML5, and CSS3, and AngularJS.  Supports networking through Firebase.
+
+Deployed at: http://ticytacy.herokuapp.com/
+
+== AI Opponent
+
+AI is implemented with MiniMax algorithm.  Activate AI button to play against pefect AI opponent.
+
+== Network Game
+
+To enable a network game, click "Network" and then open the page on another browser tab or computer and click "Network" on that game.
+
+== Credits
+
+Created by Albert Liao.
+
+Email: albertliao@gmail.com
