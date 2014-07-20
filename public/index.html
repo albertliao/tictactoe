@@ -1,7 +1,7 @@
 <html>
 <head>
 	<title>Ticy Tacy Toe!</title>
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="css/style.css">
 	<link href='https://fonts.googleapis.com/css?family=Exo+2' rel='stylesheet' type='text/css'>
 	<link href='https://fonts.googleapis.com/css?family=VT323' rel='stylesheet' type='text/css'>
 	<!-- Firebase -->
@@ -10,7 +10,7 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
 	<!-- AngularFire Library -->
 	<script src="https://cdn.firebase.com/libs/angularfire/0.7.1/angularfire.min.js"></script>
-	<script src="script.js"></script>
+	<script src="js/tictactoe.js"></script>
 </head>
 <body x-ng-app="TTTApp" x-ng-controller="TicTacController">
 		<div class="outcome">
@@ -25,15 +25,25 @@
 		</div>
 		<div class="scoreboard">
 			<h1>Win Record</h1>
-			<h2>X|{{game.scoreX}}-------------O|{{game.scoreO}}</h2>
+			<div class="scoreboard-x">
+				<h2>X|{{game.scoreX}}</h2>
+			</div>
+			<div class="scoreboard-o">
+				<h2>O|{{game.scoreO}}</h2>
+			</div>
 		</div>
 		<div id="footer" x-ng-style="footerStyle">
-			<input type="button" value = "Play Again?" x-ng-click="resetBoard();"/>
+			<input class="button" type="button" value = "Play Again?" x-ng-click="resetBoard();"/>
 		</div>
-		<input type="button" x-ng-click="playNetworkGame();" value="Network Game" />
-		<input type="button" x-ng-click="exitNetworkGame();" value="Disconnect" />
-		<div class="switchContainer">
+		<div class="options-container">
+      <h1>Options</h1>
+			<input class="button" type="button" x-ng-click="playNetworkGame();" value="Network" />
+			<input class="button" type="button" x-ng-click="exitNetworkGame();" value="Disconnect" />
+      <br />
+      <br />
 			<span id="switchtext">Enable AI Opponent</span>
+      <br />
+      <br />
 			<div class="onoffswitch">
 				<input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" x-ng-model="AIOpponent">
 				<label class="onoffswitch-label" for="myonoffswitch">

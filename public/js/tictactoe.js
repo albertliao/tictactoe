@@ -1,8 +1,6 @@
 angular.module("TTTApp", ["firebase"]).
-	controller("TicTacController", function($scope,$timeout,$firebase) {
-	//console.log($scope);
+controller("TicTacController", function($scope,$timeout,$firebase) {
 	$scope.outcome = "T3";
-	//$scope.gameWinner = "";
 	$scope.AIOpponent = false;
 	$scope.pauseMouse = false;
 	$scope.game = { 
@@ -34,7 +32,6 @@ angular.module("TTTApp", ["firebase"]).
 		}
 		if(networkGame)
 			$scope.game.$save();
-		//console.log("row score:"+matrixScore);
 
 		if (matrixScore == 3) {
 			$scope.game.scoreX++;
@@ -54,7 +51,6 @@ angular.module("TTTApp", ["firebase"]).
 		}
 		if(networkGame)
 			$scope.game.$save();
-		//console.log("col score:"+matrixScore);
 
 		if (matrixScore == 3) {
 			$scope.game.scoreX++;
@@ -69,7 +65,7 @@ angular.module("TTTApp", ["firebase"]).
 		matrixScore = 0;
 		matrixScore = $scope.game.gameMatrix[0][0]+$scope.game.gameMatrix[1][1]+$scope.game.gameMatrix[2][2];
 		$scope.game.winMatrix = [[1,0,0],[0,1,0],[0,0,1]];
-		//console.log("diagTL score:"+matrixScore);
+
 		if(networkGame)
 			$scope.game.$save();
 
@@ -86,7 +82,7 @@ angular.module("TTTApp", ["firebase"]).
 		matrixScore = 0;
 		matrixScore = $scope.game.gameMatrix[2][0]+$scope.game.gameMatrix[1][1]+$scope.game.gameMatrix[0][2];
 		$scope.game.winMatrix = [[0,0,1],[0,1,0],[1,0,0]];
-		//console.log("diagBL score:"+matrixScore);
+
 		if(networkGame)
 			$scope.game.$save();
 
@@ -105,7 +101,6 @@ angular.module("TTTApp", ["firebase"]).
 		if(networkGame)
 			$scope.game.$save();
 		if ($scope.game.movesTaken == MAX_TURNS) {
-			//console.log("Game Over: Tied");
 			return "Tied";
 		}
 		else {
@@ -140,6 +135,7 @@ angular.module("TTTApp", ["firebase"]).
 			"scoreX":0,
 			"scoreO":0
 		};  //clear board
+    $scope.outcome = "T3";
 		$scope.footerStyle = { "visibility":"hidden" };
 		playerXTurn = true; //Player X always starts
 	}
@@ -163,9 +159,9 @@ angular.module("TTTApp", ["firebase"]).
 			else	// I do have at least one game out there...
 			{
 				var keys = Object.keys(games);
-			  	var lastGameKey = keys[ keys.length - 1 ];
-			  	var lastGame = games[ lastGameKey ];
-			  	console.log("LastGame", lastGame);
+			  var lastGameKey = keys[ keys.length - 1 ];
+			  var lastGame = games[ lastGameKey ];
+			  console.log("LastGame", lastGame);
 				console.log("LastGameKey",lastGameKey);
 				console.log("games",games);
 			  	if(lastGame.waiting)
@@ -187,8 +183,8 @@ angular.module("TTTApp", ["firebase"]).
 					$scope.outcome = "Connecting...";
 				}
 			}
-			// Show the actual last game!
-			console.log("Connecting to Firebase");
+			  // Show the actual last game!
+			  console.log("Connecting to Firebase");
 		  	$scope.game = $firebase(lastGame);
 
 		  	$scope.game.$on("change", function() {
@@ -206,12 +202,10 @@ angular.module("TTTApp", ["firebase"]).
 					$scope.footerStyle = { "visibility":"visible" };
 					if($scope.game.gameWinner == "Tied")
 						$scope.outcome = "Draw!";
-					else {
-						if($scope.game.gameWinner == "X" && $scope.networkPlayer == 1 || $scope.game.gameWinner == "O" && $scope.networkPlayer == 2)
-							$scope.outcome = "You Win!";
-						else
-							$scope.outcome = "You Lose!";
-					} //alternate starting player for network games
+					else 
+            $scope.outcome = "Player "+$scope.game.gameWinner+" Wins!";
+
+          //alternate starting player for network games
 					if($scope.networkPlayer == 1)
 						$scope.networkPlayer = 2;
 					else
@@ -234,7 +228,6 @@ angular.module("TTTApp", ["firebase"]).
 	};
 
 	$scope.isGameOver = function() {
-		//console.log("Game Over:"+$scope.game.gameWinner);
 		return ($scope.game.gameWinner != "");
 	};
 
@@ -327,7 +320,6 @@ angular.module("TTTApp", ["firebase"]).
 
 	$scope.minMaxMove = function(matrix, player) {
 		var winner = $scope.matrixGameWinner(matrix);
-		//console.log("Winner:"+winner);
 		var best;
 		var val;
 
@@ -346,14 +338,12 @@ angular.module("TTTApp", ["firebase"]).
 			best = 1000;
 	
 		var freeMoves = $scope.freeCells(matrix);
-		//console.log("FreeMoves.length"+freeMoves.length);
+
 		for(var move = 0; move<freeMoves.length; move++) {
-			//console.log("Trying Move:"+freeMoves[move][0]+","+freeMoves[move][1]);
 			$scope.makeMove(matrix, freeMoves[move], player)
 			val = $scope.minMaxMove(matrix, $scope.getEnemy(player));
-			//console.log("Minmax Val:"+val);
 			$scope.makeMove(matrix, freeMoves[move], 0);
-			if(player == -1) {//if player is O (who we want to wins)
+			if(player == -1) { //if player is O (who we want to wins)
 				if(val > best)
 					best = val;
 			}
@@ -362,7 +352,7 @@ angular.module("TTTApp", ["firebase"]).
 					best = val;
 			}
 		}
-		//console.log("Returning best:"+best);
+
 		return best;
 	}
 
@@ -374,14 +364,11 @@ angular.module("TTTApp", ["firebase"]).
 		var player = -1; //computer is always O
 
 		var freeMoves = $scope.freeCells(testMatrix);
-		//console.log("Free Moves:"+freeMoves);
 
 		//for all available moves run minmax test
 		for(var move = 0; move<freeMoves.length; move++) {
-			//console.log("Trying Move:"+freeMoves[move][0]+","+freeMoves[move][1]);
 			$scope.makeMove(testMatrix, freeMoves[move], player);
 			val = $scope.minMaxMove(testMatrix, $scope.getEnemy(player));
-			//console.log("chooseMinMax val:"+val);
 			$scope.makeMove(testMatrix, freeMoves[move], 0);
 			if(val > best) {
 				best = val;
@@ -392,7 +379,6 @@ angular.module("TTTApp", ["firebase"]).
 		}
 
 		//return random best choice
-		//console.log("Choices:"+choices);
 		return choices[Math.floor(Math.random()*choices.length)];
 	};
 
@@ -431,15 +417,9 @@ angular.module("TTTApp", ["firebase"]).
 			else
 				$scope.outcome = "Player "+$scope.game.gameWinner+" Wins!";
 		}
-		//$scope.pauseMouse = false;
 	};
 
 	$scope.playerMoved = function(r,c) {
-		//console.log("makemove")
-		//console.log("row:"+r+" col:"+c );
-		
-		//if($scope.pauseMouse) //pause for timeout to execute
-		// 	return;
 		if(networkGame) {
 			console.log("Player",$scope.networkPlayer);
 			if(($scope.game.movesTaken % 2 != 0 && $scope.networkPlayer == 1) || ($scope.game.movesTaken % 2 == 0 && $scope.networkPlayer == 2)) //don't let wrong player move
@@ -483,9 +463,6 @@ angular.module("TTTApp", ["firebase"]).
 				}
 			}
 			else if ($scope.AIOpponent) { //AI moves if activated
-				//random free move
-				//$scope.pauseMouse = true;
-				//$timeout($scope.pickAIMove,1000);
 				$scope.pickAIMove();
 			}
 			
@@ -493,14 +470,5 @@ angular.module("TTTApp", ["firebase"]).
 	};
 });
 
-
-
-window.onload = function() {
-	//console.log("script start");
-}
-
-//var winMatrix = [[0,0,0],[0,0,0],[0,0,0]]; //for highlighting the win cells
-// var gameMatrix = [[0,0,0],[0,0,0],[0,0,0]];
 var playerXTurn = true;
 var MAX_TURNS = 9;
-//var movesTaken = 0;
